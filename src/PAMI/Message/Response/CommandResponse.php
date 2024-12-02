@@ -55,7 +55,9 @@ class CommandResponse extends Response
      */
     public function isCommandFinished()
     {
-        return stristr($this->getMessage(), 'command output follows') !== false;
+        return stristr($this->getMessage(), 'command output follows') !== false
+            || stristr($this->getMessage(), '--END COMMAND--') !== false
+        ;
     }
 
     /**
