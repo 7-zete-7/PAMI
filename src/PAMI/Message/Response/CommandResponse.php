@@ -55,9 +55,15 @@ class CommandResponse extends Response
      */
     public function isCommandFinished()
     {
-        return stristr($this->getMessage(), 'command output follows') !== false
-            || self::strEndsWith($this->rawContent, "\n--END COMMAND--")
-        ;
+        return stristr($this->getMessage(), 'command output follows') !== false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommandEnded()
+    {
+        return self::strEndsWith($this->rawContent, "\n--END COMMAND--");
     }
 
     /**
@@ -97,7 +103,7 @@ class CommandResponse extends Response
             $this->keys[$key] = $this->sanitizeInput($value);
         }
     }
-    
+
     /**
      * Constructor.
      *
@@ -109,6 +115,14 @@ class CommandResponse extends Response
     {
         parent::__construct($rawContent);
         $this->completed = $this->isCommandFinished();
+
+        if ($this->isCommandEnded()) {
+            $this->completed = true;
+
+            if (!isset($this->keys['output'])) {
+                $this->keys['output'] = array();
+            }
+        }
     }
 
     /**
