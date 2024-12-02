@@ -56,7 +56,7 @@ class CommandResponse extends Response
     public function isCommandFinished()
     {
         return stristr($this->getMessage(), 'command output follows') !== false
-            || stristr($this->getMessage(), '--END COMMAND--') !== false
+            || self::strEndsWith($this->rawContent, "\n--END COMMAND--")
         ;
     }
 
@@ -109,5 +109,28 @@ class CommandResponse extends Response
     {
         parent::__construct($rawContent);
         $this->completed = $this->isCommandFinished();
+    }
+
+    /**
+     * @param string $haystack
+     * @param string $needle
+     *
+     * @return bool
+     *
+     * @see https://github.com/symfony/polyfill/blob/09a94a53893adca0035423fa85a5b1523772d497/src/Php80/Php80.php#L101-L114
+     */
+    private static function strEndsWith($haystack, $needle)
+    {
+        if ('' === $needle || $needle === $haystack) {
+            return true;
+        }
+
+        if ('' === $haystack) {
+            return false;
+        }
+
+        $needleLength = \strlen($needle);
+
+        return $needleLength <= \strlen($haystack) && 0 === substr_compare($haystack, $needle, -$needleLength);
     }
 }
